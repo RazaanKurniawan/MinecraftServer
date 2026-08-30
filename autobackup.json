@@ -4,7 +4,10 @@
   "debounce_seconds": 3,
   "max_snapshot_history": 50,
   "git_enabled": true,
-  "snapshot_enabled": true,
+  "git_auto_push": true,
+  "git_remote_url": "",
+  "git_branch": "main",
+  "snapshot_enabled": false,
   "git_author_name": "AutoBackup Bot",
   "git_author_email": "autobackup@server.local",
   "ignored_patterns": [
