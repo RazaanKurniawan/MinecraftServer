@@ -135,11 +135,20 @@ class GitHandler:
             log("[Git] Inisialisasi git repository...")
             self._run_git("init")
         
+        # Ensure default branch name
+        target_branch = self.config.get("git_branch", "main")
+        self._run_git("branch", "-M", target_branch, check=False)
+
         # Configure user locally
         self._run_git("config", "user.name", self.config.get("git_author_name", "AutoBackup Bot"), check=False)
         self._run_git("config", "user.email", self.config.get("git_author_email", "autobackup@server.local"), check=False)
         self._run_git("config", "core.autocrlf", "input", check=False)
         
+        # Configure remote if set
+        remote_url = self.config.get("git_remote_url", "").strip()
+        if remote_url:
+            self.set_remote(remote_url)
+
         # Check if HEAD exists (first baseline commit)
         try:
             head_check = self._run_git("rev-parse", "--verify", "HEAD", check=False)
@@ -151,6 +160,37 @@ class GitHandler:
                     log("[Git] Initial baseline commit berhasil dibuat.")
         except Exception as e:
             log(f"[Git] Error creating initial commit: {e}")
+
+    def set_remote(self, remote_url, remote_name="origin"):
+        try:
+            check_remote = self._run_git("remote", "get-url", remote_name, check=False)
+            if check_remote.returncode == 0:
+                self._run_git("remote", "set-url", remote_name, remote_url)
+            else:
+                self._run_git("remote", "add", remote_name, remote_url)
+            log(f"[Git Remote] Remote '{remote_name}' diarahkan ke repository GitHub.")
+            return True
+        except Exception as e:
+            log(f"[Git Remote] Error configuring remote: {e}")
+            return False
+
+    def push(self, remote_name="origin", branch=None):
+        if not branch:
+            branch = self.config.get("git_branch", "main")
+        try:
+            # Mask token in logs for security
+            log(f"[Git Push] Mendorong commit ke GitHub ({remote_name}/{branch})...")
+            res = self._run_git("push", "-u", remote_name, f"HEAD:{branch}", check=False)
+            if res.returncode == 0:
+                log(f"[Git Push] ✓ Sukses push ke GitHub ({remote_name}/{branch})!")
+                return True
+            else:
+                err_msg = res.stderr.strip()
+                log(f"[Git Push] ✗ Gagal push: {err_msg}")
+                return False
+        except Exception as e:
+            log(f"[Git Push] Exception during push: {e}")
+            return False
 
     def commit_changes(self, changed_files=None):
         try:
@@ -183,6 +223,13 @@ class GitHandler:
             rev_parse = self._run_git("rev-parse", "--short", "HEAD")
             commit_hash = rev_parse.stdout.strip()
             log(f"[Git] Commit berhasil: {commit_hash} ({commit_title})")
+
+            # Auto Push to GitHub
+            if self.config.get("git_auto_push", False):
+                remote_url = self.config.get("git_remote_url", "").strip()
+                if remote_url:
+                    self.push()
+
             return commit_hash
         except Exception as e:
             log(f"[Git] Error during commit: {e}")
