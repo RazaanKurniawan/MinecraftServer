@@ -1,0 +1,27 @@
+# Runtime logs and cache
+logs/
+*.log
+*.log.gz
+.cache/
+cache/
+libraries/
+versions/
+.paper/
+
+# Large server engine binaries
+*.jar
+
+# Minecraft world runtime data (regions and playerdata change every tick)
+world/
+world_nether/
+world_the_end/
+
+# Auto-backup snapshots and internal files
+.backups/
+autobackup.pid
+autobackup.log
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store

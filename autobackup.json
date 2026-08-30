@@ -1,0 +1,31 @@
+{
+  "backup_mode": "both",
+  "backup_dir": ".backups",
+  "debounce_seconds": 3,
+  "max_snapshot_history": 50,
+  "git_enabled": true,
+  "snapshot_enabled": true,
+  "git_author_name": "AutoBackup Bot",
+  "git_author_email": "autobackup@server.local",
+  "ignored_patterns": [
+    "logs/**",
+    "*.log",
+    "*.log.gz",
+    ".cache/**",
+    "cache/**",
+    "libraries/**",
+    "versions/**",
+    ".paper/**",
+    "*.jar",
+    "world/**",
+    "world_nether/**",
+    "world_the_end/**",
+    ".backups/**",
+    ".git/**",
+    "autobackup.pid",
+    "autobackup.log",
+    "*.tmp",
+    "*.temp",
+    ".DS_Store"
+  ]
+}
