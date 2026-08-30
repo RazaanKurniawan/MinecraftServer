@@ -750,6 +750,31 @@ def stop_daemon():
         if PID_FILE.exists():
             PID_FILE.unlink()
 
+def set_remote_url(url):
+    config = load_config()
+    config["git_remote_url"] = url.strip()
+    config["git_auto_push"] = True
+    try:
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2)
+        print(f"✓ Berhasil menyimpan remote GitHub ke autobackup.json")
+    except Exception as e:
+        print(f"✗ Gagal menulis konfigurasi: {e}")
+
+    engine = AutoBackupEngine()
+    engine.git_handler.set_remote(url.strip())
+    print(f"✓ Git remote 'origin' berhasil diatur.")
+    print("Mencoba push commit yang ada ke GitHub...")
+    success = engine.git_handler.push()
+    if success:
+        print("✓ Sukses terhubung dan ter-push ke GitHub!")
+    else:
+        print("! Catatan: Jika push gagal karena autentikasi, pastikan Personal Access Token (PAT) atau SSH key valid.")
+
+def trigger_push():
+    engine = AutoBackupEngine()
+    engine.git_handler.push()
+
 def print_status():
     pid = get_daemon_pid()
     config = load_config()
@@ -765,6 +790,19 @@ def print_status():
     print(f"Backup Mode      : {config.get('backup_mode')}")
     print(f"Debounce Delay   : {config.get('debounce_seconds')} detik")
     print(f"Snapshot Retensi : {config.get('max_snapshot_history')} max")
+    
+    remote_url = config.get("git_remote_url", "").strip()
+    if remote_url:
+        # Mask token if present
+        display_url = remote_url
+        if "@" in display_url and "://" in display_url:
+            proto, rest = display_url.split("://", 1)
+            creds, host_path = rest.split("@", 1)
+            display_url = f"{proto}://***@{host_path}"
+        print(f"GitHub Remote    : {display_url} (Auto-Push: {'ON' if config.get('git_auto_push') else 'OFF'})")
+    else:
+        print(f"GitHub Remote    : (Belum diatur - gunakan `python3 autobackup.py set-remote <url>`)")
+
     print(f"Log File         : {LOG_FILE}")
 
     # Show recent commits
@@ -827,16 +865,18 @@ def print_help():
 Penggunaan: python3 autobackup.py <perintah>
 
 Perintah yang tersedia:
-  start          Jalankan auto-backup daemon di background
-  stop           Hentikan auto-backup daemon
-  restart        Restart auto-backup daemon
-  status         Cek status proses dan riwayat backup
-  run            Jalankan auto-backup di foreground (live logs)
-  history        Lihat riwayat lengkap backup & commit
-  diff [hash]    Lihat detail perbedaan file pada commit tertentu
-  restore <id>   Kembalikan file workspace ke commit hash atau snapshot ID
-  backup-now     Jalankan backup manual langsung saat ini
-  help           Tampilkan panduan ini
+  start                Jalankan auto-backup daemon di background
+  stop                 Hentikan auto-backup daemon
+  restart              Restart auto-backup daemon
+  status               Cek status proses dan riwayat backup
+  run                  Jalankan auto-backup di foreground (live logs)
+  set-remote <url>     Hubungkan repository GitHub (HTTPS Token / SSH)
+  push                 Push manual commit ke GitHub
+  history              Lihat riwayat lengkap backup & commit
+  diff [hash]          Lihat detail perbedaan file pada commit tertentu
+  restore <id>         Kembalikan file workspace ke commit hash atau snapshot ID
+  backup-now           Jalankan backup manual langsung saat ini
+  help                 Tampilkan panduan ini
 """)
 
 def main():
@@ -858,6 +898,16 @@ def main():
         start_daemon()
     elif cmd == "status":
         print_status()
+    elif cmd == "set-remote":
+        if len(sys.argv) < 3:
+            print("Error: Harap masukkan URL GitHub repository. Contoh:")
+            print("  python3 autobackup.py set-remote https://ghp_TOKEN@github.com/username/repo.git")
+            print("  atau:")
+            print("  python3 autobackup.py set-remote git@github.com:username/repo.git")
+            return
+        set_remote_url(sys.argv[2])
+    elif cmd == "push":
+        trigger_push()
     elif cmd == "history":
         limit = int(sys.argv[2]) if len(sys.argv) > 2 else 20
         show_history(limit)
@@ -881,3 +931,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
