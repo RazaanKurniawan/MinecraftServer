@@ -133,7 +133,7 @@ ExternalBoardOptions:
         # Should we let Bedrock players login automatically?
         # (Requires hookFloodgate to be true & floodgate loaded)
         # (**THIS IS SAFE DO NOT WORRY**)
-        bedrockAutoLogin: false
+        bedrockAutoLogin: true
         purgeData:
             # Should we purge data on non-registered players quit?
             purgeOnQuit: false
@@ -266,7 +266,7 @@ settings:
         # be kicked? Set to 0 to disable.
         timeout: 120
         # Regex pattern of allowed characters in the player name.
-        allowedNicknameCharacters: '[a-zA-Z0-9_]*'
+        allowedNicknameCharacters: '[a-zA-Z0-9_.]*'
         # How far can unregistered players walk?
         # Set to 0 for unlimited radius
         allowedMovementRadius: 0
@@ -472,7 +472,7 @@ Hooks:
     proxySendDelay: 10
     # Hook into floodgate.
     # This must be true if you want to use other bedrock features.
-    floodgate: false
+    floodgate: true
     # Allow bedrock players join without check isValidName?
     ignoreBedrockNameCheck: true
     # Send player to this BungeeCord server after register/login
