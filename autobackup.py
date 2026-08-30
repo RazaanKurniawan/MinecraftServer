@@ -218,9 +218,24 @@ class GitHandler:
 
     def rollback(self, commit_hash):
         try:
+            # 1. Remove files that were added after the target commit
+            diff_added = self._run_git("diff", "--name-only", "--diff-filter=A", f"{commit_hash}..HEAD", check=False)
+            if diff_added.returncode == 0 and diff_added.stdout.strip():
+                for f_rel in diff_added.stdout.strip().splitlines():
+                    f_rel = f_rel.strip()
+                    if not f_rel:
+                        continue
+                    p = self.base_dir / f_rel
+                    if p.is_file() or p.is_symlink():
+                        p.unlink()
+                    elif p.is_dir():
+                        shutil.rmtree(p)
+
+            # 2. Checkout all tracked files from the target commit
             self._run_git("checkout", commit_hash, "--", ".")
             log(f"[Git] Sukses me-restore workspace ke versi commit: {commit_hash}")
-            # Auto commit the restored state
+            
+            # 3. Create a commit recording the restoration
             self.commit_changes()
             return True
         except Exception as e:
