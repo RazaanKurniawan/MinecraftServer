@@ -17,7 +17,15 @@ timestamps:
   mute: 0
   jail: 0
   onlinejail: 0
-  logout: 0
+  logout: 1788105261431
   login: 1788105057514
 money: '0'
 last-account-name: Rajann_
+logoutlocation:
+  world: b7003223-1c5b-4531-ba4c-9454b7d578e3
+  world-name: world
+  x: 7.367514359667579
+  y: 96.0
+  z: 24.095177170494395
+  yaw: 59.99981689453125
+  pitch: 43.34999084472656
