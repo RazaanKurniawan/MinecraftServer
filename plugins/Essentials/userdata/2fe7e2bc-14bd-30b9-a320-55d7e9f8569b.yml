@@ -17,7 +17,15 @@ timestamps:
   mute: 0
   jail: 0
   onlinejail: 0
-  logout: 0
+  logout: 1788102717711
   login: 1788102656290
 money: '0'
 last-account-name: shepan
+logoutlocation:
+  world: b7003223-1c5b-4531-ba4c-9454b7d578e3
+  world-name: world
+  x: -0.5
+  y: 85.0
+  z: 7.5
+  yaw: 0.0
+  pitch: 0.0
