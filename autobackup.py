@@ -661,14 +661,13 @@ def start_daemon():
 
     # Spawn background daemon process
     cmd = [sys.executable, str(Path(__file__).resolve()), "run"]
-    with open(LOG_FILE, "a") as log_out:
-        process = subprocess.Popen(
-            cmd,
-            cwd=str(BASE_DIR),
-            stdout=log_out,
-            stderr=log_out,
-            preexec_fn=os.setpgrp
-        )
+    process = subprocess.Popen(
+        cmd,
+        cwd=str(BASE_DIR),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        preexec_fn=os.setpgrp
+    )
     
     with open(PID_FILE, "w") as f:
         f.write(str(process.pid))
