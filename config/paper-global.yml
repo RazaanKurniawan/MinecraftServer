@@ -137,7 +137,7 @@ unsupported-settings:
   allow-unsafe-end-portal-teleportation: false
   oversized-item-component-sanitizer:
     dont-sanitize: []
-  perform-username-validation: true
+  perform-username-validation: false
   skip-tripwire-hook-placement-validation: false
   skip-vanilla-damage-tick-when-shield-blocked: false
   update-equipment-on-player-actions: true
